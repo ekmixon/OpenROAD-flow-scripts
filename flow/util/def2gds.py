@@ -8,8 +8,8 @@ def expand_cfg_layers(cfg):
   layers = cfg['layers']
   expand = [layer for layer in layers if 'layers' in layers[layer]]
   for layer in expand:
-    for i, (name, num) in enumerate(zip(layers[layer]['names'],
-                                        layers[layer]['layers'])):
+    for name, num in zip(layers[layer]['names'],
+                                        layers[layer]['layers']):
       new_layer = copy.deepcopy(layers[layer])
       del new_layer['names']
       new_layer['name'] = name
@@ -19,7 +19,7 @@ def expand_cfg_layers(cfg):
     del layers[layer]
     
 def read_cfg():
-  print('INFO: Reading config file: ' + config_file)
+  print(f'INFO: Reading config file: {config_file}')
   with open(config_file, 'r') as f:
     cfg = json.load(f)
 
@@ -72,25 +72,21 @@ def read_fills(top):
           break # done with fills; don't care what follows
         m = re.match(rect_pat, line)
         if not m:
-          raise Exception('Unrecognized fill: ' + line)
-        opc_type = 'opc' if m.group('opc') else 'non-opc'
-        mask = m.group('mask')
-        if not mask: #uncolored just uses first entry
-          mask = 0
-        else:
-          mask = int(mask) - 1 # DEF is 1-based indexing
-        layer = cfg[m.group('layer')][opc_type]['klayout'][mask]
-        xlo = int(m.group('xlo')) / units
-        ylo = int(m.group('ylo')) / units
-        xhi = int(m.group('xhi')) / units
-        yhi = int(m.group('yhi')) / units
+          raise Exception(f'Unrecognized fill: {line}')
+        opc_type = 'opc' if m['opc'] else 'non-opc'
+        mask = m['mask']
+        mask = int(mask) - 1 if mask else 0
+        layer = cfg[m['layer']][opc_type]['klayout'][mask]
+        xlo = int(m['xlo']) / units
+        ylo = int(m['ylo']) / units
+        xhi = int(m['xhi']) / units
+        yhi = int(m['yhi']) / units
         top.shapes(layer).insert(pya.DBox(xlo, ylo, xhi, yhi))
       elif re.match('FILLS \d+ ;', line):
         in_fills = True
       elif not units:
-        m = re.match('UNITS DISTANCE MICRONS (\d+)', line)
-        if m:
-          units = float(m.group(1))
+        if m := re.match('UNITS DISTANCE MICRONS (\d+)', line):
+          units = float(m[1])
 
 # Load technology file
 tech = pya.Technology()
@@ -106,10 +102,9 @@ top_cell_index = main_layout.cell(design_name).cell_index()
 
 print("[INFO] Clearing cells...")
 for i in main_layout.each_cell():
-  if i.cell_index() != top_cell_index:
-    if not i.name.startswith("VIA"):
-      #print("\t" + i.name)
-      i.clear()
+  if i.cell_index() != top_cell_index and not i.name.startswith("VIA"):
+    #print("\t" + i.name)
+    i.clear()
 
 # Load in the gds to merge
 print("[INFO] Merging GDS files...")

@@ -33,18 +33,18 @@ with open(in_drc) as fp:
         if field == 0:
             m = re.match(' *violation type: (.*)', line)
             assert(m)
-            viol = m.group(1)
+            viol = m[1]
         elif field == 1:
             assert('srcs:' in line)
             srcs = line.lstrip()
         elif field == 2:
             m = re.match(bbox_re, line)
             assert(m)
-            lx = float(m.group(1))
-            ly = float(m.group(2))
-            ux = float(m.group(3))
-            uy = float(m.group(4))
-            layer = m.group(5)
+            lx = float(m[1])
+            ly = float(m[2])
+            ux = float(m[3])
+            uy = float(m[4])
+            layer = m[5]
 
         if field == 2:
             if viol not in categories:

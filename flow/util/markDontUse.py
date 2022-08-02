@@ -21,10 +21,8 @@ patternList = args.patterns.replace('*','.*').split()
 
 # Read input file
 print("Opening file for replace:",args.inputFile)
-f = open(args.inputFile)
-content = f.read()
-f.close()
-
+with open(args.inputFile) as f:
+    content = f.read()
 # Pattern to match a cell header
 pattern = r"(^\s*cell\s*\(\s*([\"]*"+"[\"]*|[\"]*".join(patternList)+"[\"]*)\)\s*\{)"
 
@@ -43,6 +41,5 @@ print("Commented", count, "lines containing \"original_pin\"")
 
 # Write output file
 print("Writing replaced file:",args.outputFile)
-f = open(args.outputFile, "w")
-f.write(content)
-f.close()
+with open(args.outputFile, "w") as f:
+    f.write(content)

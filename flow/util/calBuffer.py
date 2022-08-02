@@ -9,10 +9,9 @@ with open("reports/gf12/bp_single/min_delay_report_osta.rpt", "r") as f:
     line = f.readline()
     if not line:
       break
-    
-    m = re.search(pattern, line)
-    if m:
-      name = m.group(0)
+
+    if m := re.search(pattern, line):
+      name = m[0]
       if name not in cset:
         cset.add(name)
         count += 1

@@ -16,21 +16,18 @@ parser.add_argument('--outputLef', '-o', required=True,
 args = parser.parse_args()
 
 
-f = open(args.inputLef)
-content = f.read()
-f.close()
-
+with open(args.inputLef) as f:
+  content = f.read()
 # refMacro = "BUFH_X1M_A12TR"
 
-pattern = r"MACRO (" + args.refMacro + ")(.*?)END (" + args.refMacro + ")"
+pattern = f"MACRO ({args.refMacro})(.*?)END ({args.refMacro})"
 replace = r"MACRO \1\2END \3\nMACRO DUMMY\2END DUMMY"
 
 result,count = re.subn(pattern, replace, content, 1, re.S)
 
 if count > 0:
-  f = open(args.outputLef, "w")
-  f.write(result)
-  f.close()
+  with open(args.outputLef, "w") as f:
+    f.write(result)
 else:
   print("ERROR: Pattern not found")
   sys.exit(1)

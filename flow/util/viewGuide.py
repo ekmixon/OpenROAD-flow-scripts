@@ -16,11 +16,11 @@ def add_box(line):
 
     # covert DBU to microns
     # TODO: get conversion factor from KLayout
-    lx = float(m.group(1)) / 2000.0
-    ly = float(m.group(2)) / 2000.0
-    ux = float(m.group(3)) / 2000.0
-    uy = float(m.group(4)) / 2000.0
-    layer = m.group(5)
+    lx = float(m[1]) / 2000.0
+    ly = float(m[2]) / 2000.0
+    ux = float(m[3]) / 2000.0
+    uy = float(m[4]) / 2000.0
+    layer = m[5]
 
     if layer not in categories:
         category = rdb.create_category(layer)
@@ -57,21 +57,20 @@ with open(in_guide) as fp:
         if field == 0:
             m = re.match('(.*)', line)
             assert(m)
-            net = m.group(1)
+            net = m[1]
             on_net = (net == net_name)
             field = 1
         elif field == 1:
             assert(line.strip() == '(')
             field = 2
         elif field == 2:
-            if on_net:
-                if not add_box(line):
-                    field = 0
-            else:
-                if line.strip() == ')':
-                    field = 0
-
-
+            if (
+                on_net
+                and not add_box(line)
+                or not on_net
+                and line.strip() == ')'
+            ):
+                field = 0
 assert(field == 0)
 
 win.menu().action('tools_menu.browse_markers').trigger()
